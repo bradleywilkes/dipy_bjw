@@ -10,6 +10,10 @@ fi
 
 cd "$CLAUDE_PROJECT_DIR"
 
+# The next two blocks make system-wide changes (symlink swaps,
+# --break-system-packages). That's fine here: the container is ephemeral
+# and dedicated to this repo, so there's no real "system" to corrupt.
+
 # DIPY requires Python >= 3.12; container default is 3.11. Repoint both
 # the alternatives symlinks and /usr/local/bin/python3 (which shadows
 # /usr/bin/python3 on $PATH) at 3.12 so `pip`, `pytest`, etc. all resolve
@@ -29,5 +33,8 @@ python3 -m pip install --quiet --break-system-packages \
 
 echo "[session-start] Building DIPY in editable mode (Cython compile, ~1-2 min)"
 python3 -m pip install --quiet --break-system-packages --no-build-isolation -e .
+
+echo "[session-start] Wiring pre-commit git hooks"
+pre-commit install --install-hooks >/dev/null
 
 echo "[session-start] Environment ready."

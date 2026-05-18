@@ -2,7 +2,7 @@ name: Benchmarks
 
 on:
   # Sandbox fork: trigger manually via the Actions tab.
-  # Re-add `push` / `pull_request` if you want auto-CI again.
+  # Restore push / pull_request triggers if you want auto-CI again.
   workflow_dispatch:
 
 permissions:

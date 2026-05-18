@@ -1,7 +1,7 @@
 name: Build and upload nightly wheels
 on:
   # Sandbox fork: trigger manually via the Actions tab.
-  # Schedule + pull_request triggers removed to avoid burning Actions minutes.
+  # Restore schedule / pull_request triggers if you want auto-CI again.
   workflow_dispatch:
     inputs:
       branch_or_tag:

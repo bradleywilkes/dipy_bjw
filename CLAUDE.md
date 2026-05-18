@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## This fork is a sandbox
+
+`bradleywilkes/dipy_bjw` is a private experimentation fork of `dipy/dipy`. Changes here are **not** intended to be PR'd back upstream — work freely on `claude/*` branches without worrying about upstream conventions. Concretely:
+
+- **CI is off by default.** `test.yml`, `benchmark.yml`, `build_docs.yml`, `test_viz.yml`, and `nightly.yml` have been re-triggered to `workflow_dispatch:` only. Don't expect CI to fail/pass on pushes; invoke manually from the Actions tab if you need it. `check_format.yml` and the PR/label workflows are inert because they only fire on master pushes or PR events that don't happen here.
+- **SessionStart hook handles environment setup.** `.claude/hooks/session-start.sh` (registered in `.claude/settings.json`) repoints `python3` from the container default (3.11) to 3.12, installs runtime + dev deps, builds DIPY editable, and wires `pre-commit` git hooks. You should not need to run any of that manually — but if you do, the script is the source of truth for the working recipe.
+- **`master` is kept as a clean mirror of upstream `dipy/dipy`.** Don't commit experiments to `master`; use `claude/*` branches so you can rebase on upstream whenever you want to pull in new code.
+
 ## Project overview
 
 DIPY is a Python library for the analysis of MR diffusion imaging. It is a mixed Python/Cython/C codebase distributed on PyPI and conda-forge. The build system is Meson (via `meson-python`) and the developer task runner is [`spin`](https://github.com/scientific-python/spin), customized in `.spin/cmds.py`.
@@ -10,14 +18,21 @@ Python 3.12+ is required. Current development version: `1.13.0.dev0` (see `pypro
 
 ## Build & install (from source)
 
-The package contains Cython extensions that must be compiled. Editable installs work, but **must disable build isolation** so the in-tree numpy/cython are used:
+The package contains Cython extensions that must be compiled. Editable installs work, but **must disable build isolation** so the in-tree numpy/cython are used. The upstream docs say:
 
 ```bash
 pip install -r requirements/build.txt
 pip install --no-build-isolation -e .
 ```
 
-`requirements/build.txt` is auto-generated from `pyproject.toml`'s `[project.optional-dependencies].build` table by `tools/generate_requirements.py` (enforced by a pre-commit hook). Edit `pyproject.toml`, not the generated `requirements/*.txt`.
+In a clean env this is **not** quite enough: several `.pyx` files `cimport` from `scipy` (e.g. `dipy/reconst/_force_search.pyx` uses `scipy.linalg.cython_blas`), so `scipy` must be present at build time too. Install `requirements/default.txt` (runtime deps, including scipy) up front:
+
+```bash
+pip install -r requirements/default.txt -r requirements/dev.txt
+pip install --no-build-isolation -e .
+```
+
+That's what `.claude/hooks/session-start.sh` does. `requirements/build.txt` / `default.txt` / `dev.txt` are all auto-generated from `pyproject.toml`'s `[project.optional-dependencies]` tables by `tools/generate_requirements.py` (enforced by a pre-commit hook). Edit `pyproject.toml`, not the generated `requirements/*.txt`.
 
 Alternative dev workflow using `spin` (no manual editable install):
 
