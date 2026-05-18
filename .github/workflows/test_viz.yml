@@ -1,16 +1,9 @@
 name: Visualization
 
 on:
-  push:
-    branches: [ master ]
-    paths:
-      - dipy/viz/**
-      - dipy/workflows/**
-  pull_request:
-    branches: [ master ]
-    paths:
-      - dipy/viz/**
-      - dipy/workflows/**
+  # Sandbox fork: trigger manually via the Actions tab.
+  # Re-add `push` / `pull_request` triggers if you want auto-CI again.
+  workflow_dispatch:
 
 concurrency:
   group: build-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

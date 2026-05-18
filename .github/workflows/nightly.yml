@@ -1,22 +1,13 @@
 name: Build and upload nightly wheels
 on:
-  pull_request:
-    branches:
-      - master
+  # Sandbox fork: trigger manually via the Actions tab.
+  # Schedule + pull_request triggers removed to avoid burning Actions minutes.
   workflow_dispatch:
     inputs:
       branch_or_tag:
-        description: "Branch or Tag to Checkout" # Description shown in the GitHub UI
+        description: "Branch or Tag to Checkout"
         required: true
         default: "master"
-  schedule:
-    #        ┌───────────── minute (0 - 59)
-    #        │ ┌───────────── hour (0 - 23)
-    #        │ │ ┌───────────── day of the month (1 - 31)
-    #        │ │ │ ┌───────────── month (1 - 12 or JAN-DEC)
-    #        │ │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
-    #        │ │ │ │ │
-    - cron: "0 0 * * 0,3"  # Every Sunday and Wednesday at midnight
 
 env:
   CIBW_BUILD_VERBOSITY: 1  # verbosity of 2 shows thousands of annoying pip lines!
